@@ -1,61 +1,100 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PC Builder Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend para el sistema de armado automático de PCs con recomendaciones personalizadas usando AWS Personalize.
 
-## About Laravel
+## 🚀 Configuración Inicial
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1. Instalar Dependencias
+```bash
+composer install
+npm install
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2. Configurar Variables de Entorno
+```bash
+cp .env.example .env
+cp aws-personalize-config.env.example aws-personalize-config.env
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 3. Configurar Credenciales AWS
+Edita el archivo `aws-personalize-config.env` con tus credenciales reales:
 
-## Learning Laravel
+```env
+AWS_ACCESS_KEY_ID=tu_access_key_id_real
+AWS_SECRET_ACCESS_KEY=tu_secret_access_key_real
+AWS_DEFAULT_REGION=us-east-1
+AWS_PERSONALIZE_CAMPAIGN_ARN=arn:aws:personalize:us-east-1:tu-account-id:campaign/tu-campaign-name
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 4. Generar Clave de Aplicación
+```bash
+php artisan key:generate
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 5. Ejecutar Migraciones
+```bash
+php artisan migrate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 6. Iniciar Servidor
+```bash
+php artisan serve
+```
 
-## Laravel Sponsors
+## 🔒 Seguridad
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Protección de Credenciales
+- **NUNCA** subas credenciales reales a Git
+- Usa archivos `.env` para configuraciones locales
+- El archivo `aws-personalize-config.env` está en `.gitignore`
+- Rota tus claves AWS regularmente
 
-### Premium Partners
+### Archivos Protegidos
+Los siguientes archivos están protegidos por `.gitignore`:
+- `.env`
+- `aws-personalize-config.env`
+- `*.pem`
+- `*.key`
+- `credentials.json`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📚 Documentación
 
-## Contributing
+- `AWS_SETUP_SUMMARY.md` - Resumen de configuración AWS Personalize
+- `setup-personalize-manual.md` - Guía paso a paso para configurar AWS Personalize
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠️ Comandos Útiles
 
-## Code of Conduct
+### Exportar Datos para AWS Personalize
+```bash
+php artisan personalize:export items --output=storage/app/personalize/items.csv
+php artisan personalize:export users --output=storage/app/personalize/users.csv
+php artisan personalize:export interactions --output=storage/app/personalize/interactions.csv
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Limpiar Cache
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
 
-## Security Vulnerabilities
+## 🚨 Solución de Problemas
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Error de Push Protection en GitHub
+Si GitHub bloquea el push por detectar credenciales:
 
-## License
+1. Elimina las credenciales de los archivos
+2. Usa `git filter-branch` para limpiar el historial
+3. Fuerza el push: `git push --force-with-lease`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Credenciales AWS Expiradas
+1. Genera nuevas credenciales en AWS IAM
+2. Actualiza `aws-personalize-config.env`
+3. Reinicia el servidor
+
+## 📝 Notas de Desarrollo
+
+- El sistema usa exclusivamente AWS Personalize para recomendaciones
+- Los datos se exportan en formato CSV para AWS Personalize
+- El entrenamiento del modelo puede tomar 1-2 horas
+- Se requieren al menos 1000 interacciones para recomendaciones efectivas
